@@ -16,6 +16,8 @@
 
 #include <fmt/core.h>
 
+#include <glm/vec2.hpp>
+
 #include <iostream>
 
 using namespace Graphics; 
@@ -30,14 +32,34 @@ SpriteAnim runAnim;
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
 
+Math::Transform2D Player_transform;
 
 float Player_x = SCREEN_WIDTH / 2;
 float Player_y = SCREEN_HEIGHT / 2;
 float Player_speed = 60.0f;
 
+void InitGame()
+{
+	Player_transform.setPosition({ SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 });
+}
 
 int main()
 {
+	// Input to go to reload the current map.
+	Input::mapButton("Reload", [](std::span<const GamePadStateTracker> gamePadStates, const KeyboardStateTracker& keyboardState, const MouseStateTracker& mouseState) {
+		bool b = false;
+
+		for (auto& gamePadState : gamePadStates)
+		{
+			b = b || gamePadState.b == ButtonState::Pressed;
+		}
+
+		const bool r = keyboardState.isKeyPressed(KeyCode::R);
+		const bool enter = keyboardState.isKeyPressed(KeyCode::Enter);
+
+		return b || enter || r;
+		});
+		
 	image.resize(SCREEN_WIDTH, SCREEN_HEIGHT);
 	
 	window.create(L"Mist", SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -66,6 +88,7 @@ int main()
 	uint64_t    frameCount = 0ull;
 	std::string fps = "FPS: 0";
 
+	InitGame();
 
 	while (window)
 	{
