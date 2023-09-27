@@ -61,8 +61,8 @@ int main()
 	window.show();
 	window.setFullscreen(true);
 	
-	auto idle_sprites = ResourceManager::loadSpriteSheet("assets/Warrior/SpriteSheet/Warrior_SheetnoEffect.png", 64, 44, 0, 0, BlendMode::AlphaBlend);
-	player = Player({ SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 }, SpriteAnim{ idle_sprites, 6 });
+	
+	player = Player({ SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 });
 
 	// Load tilemap.
 	auto grass_sprites = ResourceManager::loadSpriteSheet("assets/PixelArt/TX Tileset Grass.png", 16, 16);

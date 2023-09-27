@@ -22,7 +22,7 @@ public:
 	// Default constructor.
 	Player();
 
-	explicit Player(const glm::vec2& pos, const Graphics::SpriteAnim& sprite);
+	explicit Player(const glm::vec2& pos);
 
 	void update(float deltaTime);
 
@@ -42,6 +42,8 @@ private:
 	glm::vec2 position{ 0 };
 	glm::vec2 velocity{ 0 };
 	float speed{ 60.0f };
-	Graphics::SpriteAnim sprite;
+	Graphics::SpriteAnim IdleAnim;
+	Graphics::SpriteAnim RunAnim;
+	Graphics::SpriteAnim AttackAnim;
 	Math::AABB aabb;
 };

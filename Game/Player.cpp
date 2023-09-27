@@ -2,16 +2,20 @@
 
 #include <Graphics/Input.hpp>
 #include <Graphics/Font.hpp>
+#include <Graphics/ResourceManager.hpp>
 
 using namespace Graphics;
 
 Player::Player() = default;
 
-Player::Player(const glm::vec2& pos, const SpriteAnim& _sprite)
+Player::Player(const glm::vec2& pos)
     : position{ pos }
-    , sprite{ _sprite }
     , aabb{ {8, 16, 0}, {24, 38, 0} }
-{}
+{
+    auto idle_sprites = ResourceManager::loadSpriteSheet("assets/Warrior/SpriteSheet/Warrior_SheetnoEffect.png", 64, 44, 0, 0, BlendMode::AlphaBlend);
+    IdleAnim = SpriteAnim(idle_sprites, 12, { {0, 1, 2, 3, 4, 5} });
+    RunAnim = SpriteAnim(idle_sprites, 12, { {6, 7, 8, 9, 10, 11} });
+}
 
 void Player::update(float deltaTime)
 {
@@ -31,7 +35,8 @@ void Player::update(float deltaTime)
         setState(State::Idle);
     }
 
-    sprite.update(deltaTime);
+    IdleAnim.update(deltaTime);
+    RunAnim.update(deltaTime);
 }
 
 void Player::draw(Graphics::Image& image)
@@ -39,10 +44,10 @@ void Player::draw(Graphics::Image& image)
     switch (state)
     {
     case State::Idle:
-        image.drawSprite(sprite, position.x, position.y);
+        image.drawSprite(IdleAnim, position.x, position.y);
         break;
     case State::Running:
-        // TODO: draw running animation.
+        image.drawSprite(RunAnim, position.x, position.y);
         break;
     }
 #if _DEBUG
