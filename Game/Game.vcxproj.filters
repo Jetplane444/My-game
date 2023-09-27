@@ -21,10 +21,16 @@
     <ClCompile Include="src\Ball.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\Ball.hpp">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Player.hpp">
+      <Filter>Resource Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

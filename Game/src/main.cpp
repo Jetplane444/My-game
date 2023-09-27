@@ -1,3 +1,5 @@
+#include <Player.hpp>
+
 #include <Graphics/Window.hpp>
 #include <Graphics/Image.hpp>
 #include <Graphics/Sprite.hpp>
@@ -24,23 +26,16 @@ using namespace Graphics;
 
 Window window;
 Image image; 
-Sprite sprite; 
-SpriteAnim idleAnim;
 TileMap grassTiles;
-SpriteAnim runAnim;
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
 
-Math::Transform2D Player_transform;
-
-float Player_x = SCREEN_WIDTH / 2;
-float Player_y = SCREEN_HEIGHT / 2;
-float Player_speed = 60.0f;
+Player player;
 
 void InitGame()
 {
-	Player_transform.setPosition({ SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 });
+	player.setPosition({ SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 });
 }
 
 int main()
@@ -67,17 +62,15 @@ int main()
 	window.setFullscreen(true);
 	
 	auto idle_sprites = ResourceManager::loadSpriteSheet("assets/Warrior/SpriteSheet/Warrior_SheetnoEffect.png", 64, 44, 0, 0, BlendMode::AlphaBlend);
-	idleAnim = SpriteAnim{ idle_sprites, 12, {{0,1,2,3,4,5}} };
-	runAnim = SpriteAnim{ idle_sprites, 12, {{6,7,8,9,10,11,12,13,}} };
-
+	player = Player({ SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 }, SpriteAnim{ idle_sprites, 6 });
 
 	// Load tilemap.
 	auto grass_sprites = ResourceManager::loadSpriteSheet("assets/PixelArt/TX Tileset Grass.png", 16, 16);
 	grassTiles = TileMap{ grass_sprites, 30, 30 };
 	
-	for(int i = 0; i < 30; i++)
+	for(int i = 0; i < 30; ++i)
     {
-		for (int j = 0; j < 30; j++)
+		for (int j = 0; j < 30; ++j)
 		{
 			grassTiles(i, j) = (i *grass_sprites->getNumColumns()+ j) % grass_sprites->getNumSprites();
 		}
@@ -92,35 +85,41 @@ int main()
 
 	while (window)
 	{
-		// update loop.
-//		auto keyState = Keyboard::getState();
-
 		// update the input state
 		Input::update();
 
-		Player_x += Input::getAxis("Horizontal") * Player_speed * timer.elapsedSeconds();
-		Player_y -= Input::getAxis("Vertical") * Player_speed * timer.elapsedSeconds();
+		player.update(timer.elapsedSeconds());
+		// Check collisions with player.
+		//Screen space collision.
+		{
+			auto aabb = player.getAABB();
+			glm::vec2 correction{ 0 };
+			if (aabb.min.x < 0)
+			{
+				correction.x = -aabb.min.x;
+			}
+			if (aabb.min.y < 0)
+			{
+				correction.y = -aabb.min.y;
+			}
+			if (aabb.max.x >= image.getWidth())
+			{
+				correction.x = image.getWidth() - aabb.max.x;
+			}
+			if (aabb.max.y >= image.getHeight())
+			{
+				correction.y = image.getHeight() - aabb.max.y;
+			}
 
-		//if (keyState.W)
-		//{
-		//	Player_y -= timer.elapsedSeconds();
-		//}
-		//if (keyState.S)
-		//{
-		//	Player_y += timer.elapsedSeconds();
-		//}
-		//if (keyState.A)
-		//{
-		//	Player_x -= timer.elapsedSeconds();
-		//}
-		//if (keyState.D)
-		//{
-		//	Player_x += timer.elapsedSeconds();
-		//}
+			// Apply correction
+			player.translate(correction);
+		}
 
 
-
-		
+		if (Input::getButton("Reload"))
+		{
+			InitGame();
+		}
 
 		// Render loop.
 
@@ -128,23 +127,11 @@ int main()
 
 		grassTiles.draw(image); 
 
+		player.draw(image);
+
 		image.drawText(Font::Default, fps, 10, 10, Color::Black);
 
-		
-
-		if (Input::getAxis("Horizontal") != 0 || Input::getAxis("Vertical") != 0) 
-		{
-			runAnim.update(timer.elapsedSeconds());
-			image.drawSprite(runAnim, Player_x, Player_y);
-		}
-		else {
-			idleAnim.update(timer.elapsedSeconds());
-            image.drawSprite(idleAnim, Player_x, Player_y);
-		}
-
 		window.present(image);
-
-
 
 
 		Event e;
