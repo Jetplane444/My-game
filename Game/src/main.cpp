@@ -15,6 +15,7 @@
 #include <Graphics/Input.hpp>
 #include <Math/Transform2D.hpp>
 #include <Graphics/TileMap.hpp>
+#include <Math/Camera2D.hpp>
 
 #include <fmt/core.h>
 
@@ -23,10 +24,13 @@
 #include <iostream>
 
 using namespace Graphics; 
+using namespace Math;
 
 Window window;
 Image image; 
 TileMap grassTiles;
+Sprite background;
+Camera2D camera;
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
@@ -36,6 +40,7 @@ Player player;
 void InitGame()
 {
 	player.setPosition({ SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 });
+	camera.setOrigin(player.getPosition());
 }
 
 int main()
@@ -65,6 +70,9 @@ int main()
 	player = Player({ SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 });
 
 	// Load tilemap.
+	auto backgroundMap = ResourceManager::loadImage("assets/Map.png");
+	background = Sprite{ backgroundMap };
+
 	auto grass_sprites = ResourceManager::loadSpriteSheet("assets/PixelArt/TX Tileset Grass.png", 16, 16);
 	grassTiles = TileMap{ grass_sprites, 30, 30 };
 	
@@ -89,31 +97,32 @@ int main()
 		Input::update();
 
 		player.update(timer.elapsedSeconds());
+		camera.setOrigin(player.getPosition());
+
 		// Check collisions with player.
 		//Screen space collision.
-		{
-			auto aabb = player.getAABB();
-			glm::vec2 correction{ 0 };
-			if (aabb.min.x < 0)
-			{
-				correction.x = -aabb.min.x;
-			}
-			if (aabb.min.y < 0)
-			{
-				correction.y = -aabb.min.y;
-			}
-			if (aabb.max.x >= image.getWidth())
-			{
-				correction.x = image.getWidth() - aabb.max.x;
-			}
-			if (aabb.max.y >= image.getHeight())
-			{
-				correction.y = image.getHeight() - aabb.max.y;
-			}
+		//{
+		//	auto aabb = player.getAABB();
+		//	glm::vec2 correction{ 0 };
+		//	if (aabb.min.x < 0)
+		//	{
+		//		correction.x = -aabb.min.x;
+		//	}
+		//	if (aabb.min.y < 0)
+		//	{
+		//		correction.y = -aabb.min.y;
+		//	if (aabb.max.x >= image.getWidth())
+		//	{
+		//		correction.x = image.getWidth() - aabb.max.x;
+		//	}
+		//	if (aabb.max.y >= image.getHeight())
+		//	{
+		//		correction.y = image.getHeight() - aabb.max.y;
+		//	}
 
 			// Apply correction
-			player.translate(correction);
-		}
+		//	player.translate(correction);
+		//}
 
 
 		if (Input::getButton("Reload"))
@@ -125,9 +134,9 @@ int main()
 
 		image.clear(Color::White);
 
-		grassTiles.draw(image); 
+		image.drawSprite(background, camera);
 
-		player.draw(image);
+		player.draw(image, camera);
 
 		image.drawText(Font::Default, fps, 10, 10, Color::Black);
 

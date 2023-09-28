@@ -3,13 +3,15 @@
 #include <Graphics/Input.hpp>
 #include <Graphics/Font.hpp>
 #include <Graphics/ResourceManager.hpp>
+#include <Math/Camera2D.hpp>
 
 using namespace Graphics;
+using namespace Math;
 
 Player::Player() = default;
 
 Player::Player(const glm::vec2& pos)
-    : position{ pos }
+    : transform{ pos }
     , aabb{ {8, 16, 0}, {24, 38, 0} }
 {
     auto idle_sprites = ResourceManager::loadSpriteSheet("assets/Warrior/SpriteSheet/Warrior_SheetnoEffect.png", 64, 44, 0, 0, BlendMode::AlphaBlend);
@@ -19,12 +21,15 @@ Player::Player(const glm::vec2& pos)
 
 void Player::update(float deltaTime)
 {
-    auto initialPos = position;
+    auto initialPos = transform.getPosition();
+    auto newPos = initialPos;
 
-    position.x += Input::getAxis("Horizontal") * speed * deltaTime;
-    position.y -= Input::getAxis("Vertical") * speed * deltaTime;
+    newPos.x += Input::getAxis("Horizontal") * speed * deltaTime;
+    newPos.y -= Input::getAxis("Vertical") * speed * deltaTime;
 
-    velocity = (position - initialPos) / deltaTime;
+    velocity = (newPos - initialPos) / deltaTime;
+
+    transform.setPosition(newPos);
 
     if (glm::length(velocity) > 0)
     {
@@ -39,41 +44,42 @@ void Player::update(float deltaTime)
     RunAnim.update(deltaTime);
 }
 
-void Player::draw(Graphics::Image& image)
+void Player::draw(Graphics::Image& image, const Camera2D& camera)
 {
     switch (state)
     {
     case State::Idle:
-        image.drawSprite(IdleAnim, position.x, position.y);
+        image.drawSprite(IdleAnim, camera * transform);
         break;
     case State::Running:
-        image.drawSprite(RunAnim, position.x, position.y);
+        image.drawSprite(RunAnim, camera * transform);
         break;
     }
 #if _DEBUG
     image.drawAABB(getAABB(), Color::Yellow, {}, FillMode::WireFrame);
-    image.drawText(Font::Default, "State...", position.x, position.y, Color::Black);
+    auto pos = camera * transform;
+    image.drawText(Font::Default, "State...", pos[2][0], pos[2][1], Color::Black);
 #endif
 }
 
 void Player::setPosition(const glm::vec2& pos)
 {
-    position = pos;
+    transform.setPosition(pos);
 }
 
 const glm::vec2& Player::getPosition() const
 {
-    return position;
+    return transform.getPosition();
 }
 
 void Player::translate(const glm::vec2& t)
 {
-    position += t;
+    transform.translate(t);
 }
 
 const Math::AABB Player::getAABB() const
 {
-    return aabb + glm::vec3{ position, 0 };
+    return transform * aabb;
 }
 
 void Player::setState(State newState)

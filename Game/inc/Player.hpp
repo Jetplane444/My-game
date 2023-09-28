@@ -6,6 +6,14 @@
 
 #include <glm/vec2.hpp>
 
+namespace Math
+{
+	class Camera2D;
+}
+namespace Graphics
+{
+	class Image;
+}
 
 class Player
 {
@@ -26,7 +34,7 @@ public:
 
 	void update(float deltaTime);
 
-	void draw(Graphics::Image& image);
+	void draw(Graphics::Image& image, const Math::Camera2D& camera);
 
 	void setPosition(const glm::vec2& pos);
 	const glm::vec2& getPosition() const;
@@ -39,7 +47,7 @@ private:
 	void setState(State newState);
 
 	State state = State::None;
-	glm::vec2 position{ 0 };
+	Math::Transform2D transform;
 	glm::vec2 velocity{ 0 };
 	float speed{ 60.0f };
 	Graphics::SpriteAnim IdleAnim;
