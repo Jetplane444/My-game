@@ -23,11 +23,11 @@
 
 #include <iostream>
 
-using namespace Graphics; 
+using namespace Graphics;
 using namespace Math;
 
 Window window;
-Image image; 
+Image image;
 TileMap grassTiles;
 Sprite background;
 Camera2D camera;
@@ -39,148 +39,176 @@ Player player;
 
 void InitGame()
 {
-	player.setPosition({ SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 });
-	camera.setOrigin(player.getPosition());
+    player.setPosition({ SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 });
+    camera.setSize({ SCREEN_WIDTH, SCREEN_HEIGHT });
+    camera.setPosition(player.getPosition());
 }
 
 int main()
 {
-	// Input to go to reload the current map.
-	Input::mapButton("Reload", [](std::span<const GamePadStateTracker> gamePadStates, const KeyboardStateTracker& keyboardState, const MouseStateTracker& mouseState) {
-		bool b = false;
+    // Input to go to reload the current map.
+    Input::mapButton("Reload", [](std::span<const GamePadStateTracker> gamePadStates, const KeyboardStateTracker& keyboardState, const MouseStateTracker& mouseState) {
+        bool b = false;
 
-		for (auto& gamePadState : gamePadStates)
-		{
-			b = b || gamePadState.b == ButtonState::Pressed;
-		}
+        for (auto& gamePadState : gamePadStates)
+        {
+            b = b || gamePadState.b == ButtonState::Pressed;
+        }
 
-		const bool r = keyboardState.isKeyPressed(KeyCode::R);
-		const bool enter = keyboardState.isKeyPressed(KeyCode::Enter);
+        const bool r = keyboardState.isKeyPressed(KeyCode::R);
 
-		return b || enter || r;
-		});
-		
-	image.resize(SCREEN_WIDTH, SCREEN_HEIGHT);
-	
-	window.create(L"Mist", SCREEN_WIDTH, SCREEN_HEIGHT);
-	window.show();
-	window.setFullscreen(true);
-	
-	
-	player = Player({ SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 });
+        return b || r;
+        });
 
-	// Load tilemap.
-	auto backgroundMap = ResourceManager::loadImage("assets/Map.png");
-	background = Sprite{ backgroundMap };
+    image.resize(SCREEN_WIDTH, SCREEN_HEIGHT);
 
-	auto grass_sprites = ResourceManager::loadSpriteSheet("assets/PixelArt/TX Tileset Grass.png", 16, 16);
-	grassTiles = TileMap{ grass_sprites, 30, 30 };
-	
-	for(int i = 0; i < 30; ++i)
+    window.create(L"Mist", SCREEN_WIDTH, SCREEN_HEIGHT);
+    window.show();
+    window.setFullscreen(true);
+
+
+    player = Player({ SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 });
+
+    // Load tilemap.
+    auto backgroundMap = ResourceManager::loadImage("assets/Map.png");
+    background = Sprite{ backgroundMap };
+
+    auto grass_sprites = ResourceManager::loadSpriteSheet("assets/PixelArt/TX Tileset Grass.png", 16, 16);
+    grassTiles = TileMap{ grass_sprites, 30, 30 };
+
+    for (int i = 0; i < 30; ++i)
     {
-		for (int j = 0; j < 30; ++j)
-		{
-			grassTiles(i, j) = (i *grass_sprites->getNumColumns()+ j) % grass_sprites->getNumSprites();
-		}
-	}
+        for (int j = 0; j < 30; ++j)
+        {
+            grassTiles(i, j) = (i * grass_sprites->getNumColumns() + j) % grass_sprites->getNumSprites();
+        }
+    }
 
-	Timer       timer;
-	double      totalTime = 0.0;
-	uint64_t    frameCount = 0ull;
-	std::string fps = "FPS: 0";
+    Timer       timer;
+    double      totalTime = 0.0;
+    uint64_t    frameCount = 0ull;
+    std::string fps = "FPS: 0";
 
-	InitGame();
+    InitGame();
 
-	while (window)
-	{
-		// update the input state
-		Input::update();
+    while (window)
+    {
+        // update the input state
+        Input::update();
 
-		player.update(timer.elapsedSeconds());
-		camera.setOrigin(player.getPosition());
+        player.update(static_cast<float>(timer.elapsedSeconds()));
+        camera.setPosition(player.getPosition());
 
-		// Check collisions with player.
-		//Screen space collision.
-		//{
-		//	auto aabb = player.getAABB();
-		//	glm::vec2 correction{ 0 };
-		//	if (aabb.min.x < 0)
-		//	{
-		//		correction.x = -aabb.min.x;
-		//	}
-		//	if (aabb.min.y < 0)
-		//	{
-		//		correction.y = -aabb.min.y;
-		//	if (aabb.max.x >= image.getWidth())
-		//	{
-		//		correction.x = image.getWidth() - aabb.max.x;
-		//	}
-		//	if (aabb.max.y >= image.getHeight())
-		//	{
-		//		correction.y = image.getHeight() - aabb.max.y;
-		//	}
+        // Make sure that the camera's visible area does not leave the area of the background sprite.
+        glm::vec2 cameraCorrection{0};
+        if (camera.getLeftEdge() < 0)
+        {
+            cameraCorrection.x = -camera.getLeftEdge();
+        }
+        else if (camera.getRightEdge() > static_cast<float>(background.getWidth()))
+        {
+            cameraCorrection.x = std::floor(static_cast<float>(background.getWidth()) - camera.getRightEdge());
+        }
 
-			// Apply correction
-		//	player.translate(correction);
-		//}
+        if (camera.getTopEdge() < 0)
+        {
+            cameraCorrection.y = -camera.getTopEdge();
+        }
+        else if (camera.getBottomEdge() > static_cast<float>(background.getHeight()))
+        {
+            cameraCorrection.y = std::floor(static_cast<float>(background.getHeight()) - camera.getBottomEdge());
+        }
+
+        // Apply camera correction.
+        camera.translate(cameraCorrection);
 
 
-		if (Input::getButton("Reload"))
-		{
-			InitGame();
-		}
+        // Check collisions with player.
+        //Screen space collision.
+        //{
+        //	auto aabb = player.getAABB();
+        //	glm::vec2 correction{ 0 };
+        //	if (aabb.min.x < 0)
+        //	{
+        //		correction.x = -aabb.min.x;
+        //	}
+        //	if (aabb.min.y < 0)
+        //	{
+        //		correction.y = -aabb.min.y;
+        //	if (aabb.max.x >= image.getWidth())
+        //	{
+        //		correction.x = image.getWidth() - aabb.max.x;
+        //	}
+        //	if (aabb.max.y >= image.getHeight())
+        //	{
+        //		correction.y = image.getHeight() - aabb.max.y;
+        //	}
 
-		// Render loop.
-
-		image.clear(Color::White);
-
-		image.drawSprite(background, camera);
-
-		player.draw(image, camera);
-
-		image.drawText(Font::Default, fps, 10, 10, Color::Black);
-
-		window.present(image);
+            // Apply correction
+        //	player.translate(correction);
+        //}
 
 
-		Event e;
-		while (window.popEvent(e))
-		{
-			switch (e.type)
-			{
-			case Event::Close:
-				window.destroy(); 
-				break;
-			case Event::KeyPressed:
-			{
-				switch (e.key.code)
-				{
-				case KeyCode::Escape:
-					window.destroy();
-					break;
-				case KeyCode::V:
-					window.toggleVSync();
-				}
-			}
-			break;
-			}
-		}
+        if (Input::getButton("Reload"))
+        {
+            InitGame();
+        }
 
-		timer.tick();
-		++frameCount;
+        // Render loop.
 
-		totalTime += timer.elapsedSeconds();
-		if (totalTime > 1.0)
-		{
-			fps = fmt::format("FPS: {:.3f}", static_cast<double>(frameCount) / totalTime);
+        image.clear(Color::White);
 
-			std::cout << fps << std::endl;
+        image.drawSprite(background, camera);
 
-			frameCount = 0;
-			totalTime = 0.0;
-		}
-	}
-	std::cout << "Thanks for playing" << std::endl; 
-		 
-	return 0;
+        player.draw(image, camera);
+
+        image.drawText(Font::Default, fps, 10, 10, Color::Black);
+
+        window.present(image);
+
+
+        Event e;
+        while (window.popEvent(e))
+        {
+            switch (e.type)
+            {
+            case Event::Close:
+                window.destroy();
+                break;
+            case Event::KeyPressed:
+            {
+                switch (e.key.code)
+                {
+                case KeyCode::Escape:
+                    window.destroy();
+                    break;
+                case KeyCode::V:
+                    window.toggleVSync();
+                    break;
+                case KeyCode::F11:
+                    window.toggleFullscreen();
+                    break;
+                }
+            }
+            break;
+            }
+        }
+
+        timer.tick();
+        ++frameCount;
+
+        totalTime += timer.elapsedSeconds();
+        if (totalTime > 1.0)
+        {
+            fps = fmt::format("FPS: {:.3f}", static_cast<double>(frameCount) / totalTime);
+
+            std::cout << fps << std::endl;
+
+            frameCount = 0;
+            totalTime = 0.0;
+        }
+    }
+    std::cout << "Thanks for playing" << std::endl;
+
+    return 0;
 }

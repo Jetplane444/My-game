@@ -116,6 +116,33 @@ public:
     }
 
     /// <summary>
+    /// Get the width of the TileMap (in pixels).
+    /// </summary>
+    uint32_t getTileMapWidth() const noexcept
+    {
+        return getSpriteWidth() * getColumns();
+    }
+
+    /// <summary>
+    /// Get the height of the TileMap (in pixels).
+    /// </summary>
+    /// <returns></returns>
+    uint32_t getTileMapHeight() const noexcept
+    {
+        return getSpriteHeight() * getRows();
+    }
+
+    /// <summary>
+    /// Get the AABB of the tile map.
+    /// Note: The min point is always 0, 0.
+    /// </summary>
+    /// <returns></returns>
+    Math::AABB getAABB() const noexcept
+    {
+        return { glm::vec3{0, 0, 0}, glm::vec3{getTileMapWidth(), getTileMapHeight(), 0} };
+    }
+
+    /// <summary>
     /// Draw this tile map to the image.
     /// </summary>
     /// <param name="image">The image to draw the tile map to.</param>

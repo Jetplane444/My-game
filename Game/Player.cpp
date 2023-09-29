@@ -12,7 +12,7 @@ Player::Player() = default;
 
 Player::Player(const glm::vec2& pos)
     : transform{ pos }
-    , aabb{ {8, 16, 0}, {24, 38, 0} }
+    , aabb{ {18, 10, 0}, {36, 43, 0} }
 {
     auto idle_sprites = ResourceManager::loadSpriteSheet("assets/Warrior/SpriteSheet/Warrior_SheetnoEffect.png", 64, 44, 0, 0, BlendMode::AlphaBlend);
     IdleAnim = SpriteAnim(idle_sprites, 12, { {0, 1, 2, 3, 4, 5} });
@@ -56,7 +56,7 @@ void Player::draw(Graphics::Image& image, const Camera2D& camera)
         break;
     }
 #if _DEBUG
-    image.drawAABB(getAABB(), Color::Yellow, {}, FillMode::WireFrame);
+    image.drawAABB(camera * getAABB(), Color::Yellow, {}, FillMode::WireFrame);
     auto pos = camera * transform;
     image.drawText(Font::Default, "State...", pos[2][0], pos[2][1], Color::Black);
 #endif
