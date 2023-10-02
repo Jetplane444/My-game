@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Rect.hpp"
+#include "Space.hpp"
 #include "Transform2D.hpp"
 
 #include <glm/mat3x3.hpp>
@@ -10,20 +12,24 @@ namespace Math
 class Camera2D
 {
 public:
-    enum class Space
-    {
-        Local,   ///< Translation is applied in the camera's local space.
-        World,   ///< Translation is applied in screen world coordinates.
-    };
+    Camera2D() = default;
 
     /// <summary>
-    /// Initialize a 2D Camera.
+        /// Initialize a 2D Camera.
+        /// </summary>
+        /// <param name="position">The center position of the camera (in screen space pixels).</param>
+        /// <param name="size">The size of the view to display.</param>
+    explicit Camera2D(const glm::vec2& position, const glm::vec2& size) noexcept;
+
+    /// <summary>
+    /// Initialize a 2D camera from a visible area to display.
     /// </summary>
-    /// <param name="position">The position of the camera (in screen space pixels).</param>
-    /// <param name="origin">The origin of the camera's rotation and scaling.</param>
-    /// <param name="rotation">The rotation (in radians) of the camera.</param>
-    /// <param name="zoom">The zoom of the camera.</param>
-    explicit Camera2D( const glm::vec2& position = glm::vec2 { 0 }, const glm::vec2& origin = glm::vec2 { 0 }, float rotation = 0.0f, float zoom = 1.0f ) noexcept;
+    /// <param name="rectangle"></param>
+    template<typename T>
+    explicit Camera2D(const Rect<T>& rectangle) noexcept
+    {
+        reset(rectangle);
+    }
 
     // Allow implicit conversion to mat3.
     operator const glm::mat3& () const
@@ -32,25 +38,81 @@ public:
     }
 
     /// <summary>
-    /// Reset the camera to its default state.
+    /// Reset the camera to fit the rectangle view.
     /// </summary>
-    void reset() noexcept
+    template<typename T>
+    void reset(const Rect<T>& rectangle) noexcept
     {
-        m_Position       = glm::vec2 { 0 };
-        m_Origin         = glm::vec2 { 0 };
-        m_Rotation       = 0.0f;
-        m_Zoom           = 1.0f;
-        m_TransformDirty = true;
+        m_Position.x = static_cast<float>(rectangle.left) + static_cast<float>(rectangle.width) / 2.0f;
+        m_Position.y = static_cast<float>(rectangle.top) + static_cast<float>(rectangle.height) / 2.0f;
+        m_Size.x = static_cast<float>(rectangle.width);
+        m_Size.y = static_cast<float>(rectangle.height);
+        m_Rotation = 0.0f;
+        m_Zoom = 1.0f;
+        m_ViewMatrixDirty = true;
     }
 
     /// <summary>
-    /// Set the position of the camera in screen space.
+    /// Set the size of the viewable area.
     /// </summary>
-    /// <param name="pos">The position of the camera in 2D screen space.</param>
-    void setPosition( const glm::vec2& pos ) noexcept
+    /// <param name="size">The width, and height of the viewable area.</param>
+    void setSize(const glm::vec2& size) noexcept
     {
-        m_Position       = pos;
-        m_TransformDirty = true;
+        m_Size = size;
+        m_ViewMatrixDirty = true;
+    }
+
+    /// <summary>
+    /// Get the size of the viewable area.
+    /// </summary>
+    /// <returns>The width and height of the viewable area.</returns>
+    const glm::vec2& getSize() const noexcept
+    {
+        return m_Size;
+    }
+
+    /// <summary>
+    /// Get the X-coordinate of the left edge of the camera's viewable area.
+    /// </summary>
+    float getLeftEdge() const noexcept
+    {
+        return m_Position.x - m_Size.x / 2.0f;
+    }
+
+    /// <summary>
+    /// Get the X-coordinate of the right edge of the camera's viewable area.
+    /// </summary>
+    float getRightEdge() const noexcept
+    {
+        return m_Position.x + m_Size.x / 2.0f;
+    }
+
+    /// <summary>
+    /// Get the Y-coordinate of the top edge of the camera's viewable area.
+    /// </summary>
+    /// <returns></returns>
+    float getTopEdge() const noexcept
+    {
+        return m_Position.y - m_Size.y / 2.0f;
+    }
+
+    /// <summary>
+    /// Get the Y-coordinate of the bottom edge of the camera's viewable area.
+    /// </summary>
+    /// <returns></returns>
+    float getBottomEdge() const noexcept
+    {
+        return m_Position.y + m_Size.y / 2.0f;
+    }
+
+    /// <summary>
+    /// Set the center position of the camera.
+    /// </summary>
+    /// <param name="pos">The center position of the camera in 2D screen space.</param>
+    void setPosition(const glm::vec2& pos) noexcept
+    {
+        m_Position = pos;
+        m_ViewMatrixDirty = true;
     }
 
     /// <summary>
@@ -67,45 +129,16 @@ public:
     /// </summary>
     /// <param name="translation">The value to add to the current position of the camera.</param>
     /// <param name="space">The space to apply the translation.</param>
-    void translate( const glm::vec2& translation, Space space = Space::Local ) noexcept;
-
-    /// <summary>
-    /// Set the origin of the camera.
-    /// This is the origin of zooming/rotating of the camera.
-    /// </summary>
-    /// <param name="origin">The origin of zooming/rotating.</param>
-    void setOrigin( const glm::vec2& origin ) noexcept
-    {
-        m_Origin         = origin;
-        m_TransformDirty = true;
-    }
-
-    /// <summary>
-    /// Get the current origin of the camera.
-    /// </summary>
-    /// <returns>The current origin of rotation.</returns>
-    const glm::vec2& getOrigin() const noexcept
-    {
-        return m_Origin;
-    }
-
-    /// <summary>
-    /// Move the origin of the camera.
-    /// </summary>
-    /// <param name="offset">The offset of the camera origin.</param>
-    void moveOrigin( const glm::vec2& offset ) noexcept
-    {
-        setOrigin( m_Origin + offset );
-    }
+    void translate(const glm::vec2& translation, Space space = Space::Local) noexcept;
 
     /// <summary>
     /// Set the current rotation of the camera (in radians).
     /// </summary>
     /// <param name="rot">The current rotation of the camera (in radians).</param>
-    void setRotation( float rot ) noexcept
+    void setRotation(float rot) noexcept
     {
-        m_Rotation       = rot;
-        m_TransformDirty = true;
+        m_Rotation = rot;
+        m_ViewMatrixDirty = true;
     }
 
     /// <summary>
@@ -121,19 +154,19 @@ public:
     /// Add rotation to the camera.
     /// </summary>
     /// <param name="rot">The rotation to add to the camera.</param>
-    void rotate( float rot ) noexcept
+    void rotate(float rot) noexcept
     {
-        setRotation( m_Rotation + rot );
+        setRotation(m_Rotation + rot);
     }
 
     /// <summary>
     /// Set the zoom of the camera.
     /// </summary>
     /// <param name="zoom">The zoom of the camera.</param>
-    void setZoom( float zoom ) noexcept
+    void setZoom(float zoom) noexcept
     {
-        m_Zoom           = zoom;
-        m_TransformDirty = true;
+        m_Zoom = zoom;
+        m_ViewMatrixDirty = true;
     }
 
     /// <summary>
@@ -149,9 +182,9 @@ public:
     /// Increase or decrees the camera zoom.
     /// </summary>
     /// <param name="zoom">The factor to increase or decrease the camera zoom.</param>
-    void zoom( float zoom )
+    void zoom(float zoom)
     {
-        setZoom( m_Zoom + zoom );
+        setZoom(m_Zoom + zoom);
     }
 
     /// <summary>
@@ -165,9 +198,9 @@ public:
     /// </summary>
     /// <param name="point">The point to transform.</param>
     /// <returns></returns>
-    glm::vec2 transformPoint( const glm::vec2& point ) const noexcept
+    glm::vec2 transformPoint(const glm::vec2& point) const noexcept
     {
-        return getTransform() * glm::vec3( point, 1.0f );
+        return getTransform() * glm::vec3(point, 1.0f);
     }
 
     /// <summary>
@@ -175,34 +208,44 @@ public:
     /// </summary>
     /// <param name="v">The vector to transform.</param>
     /// <returns></returns>
-    glm::vec2 transformVector( const glm::vec2& v ) const noexcept
+    glm::vec2 transformVector(const glm::vec2& v) const noexcept
     {
-        return getTransform() * glm::vec3( v, 0.0f );
+        return getTransform() * glm::vec3(v, 0.0f);
     }
 
 private:
-    glm::vec2 m_Position { 0 };
-    glm::vec2 m_Origin { 0 };
-    float     m_Rotation { 0.0f };
-    float     m_Zoom { 1.0f };
+    glm::vec2 m_Position{ 0, 0 };
+    glm::vec2 m_Size{ 100, 100 };
+    float     m_Rotation{ 0.0f };
+    float     m_Zoom{ 1.0f };
 
-    mutable glm::mat3 m_Transform { 1 };
-    mutable bool      m_TransformDirty = true;
+    mutable glm::mat3 m_ViewMatrix{ 1 };
+    mutable bool      m_ViewMatrixDirty = true;
 };
 
-inline glm::vec2 operator*( const Camera2D& camera, const glm::vec2& point ) noexcept
+inline glm::vec2 operator*(const Camera2D& camera, const glm::vec2& point) noexcept
 {
-    return camera.getTransform() * glm::vec3( point, 1.0f );
+    return camera.getTransform() * glm::vec3(point, 1.0f);
 }
 
-inline glm::vec3 operator*( const Camera2D& camera, const glm::vec3& v ) noexcept
+inline glm::vec3 operator*(const Camera2D& camera, const glm::vec3& v) noexcept
 {
     return camera.getTransform() * v;
 }
 
-inline glm::mat3 operator*( const Camera2D& camera, const Transform2D& transform ) noexcept
+inline glm::mat3 operator*(const Camera2D& camera, const Transform2D& transform) noexcept
 {
     return camera.getTransform() * transform.getTransform();
+}
+
+inline AABB operator*(const Camera2D& camera, const AABB& aabb) noexcept
+{
+    const auto& mat = camera.getTransform();
+
+    const auto min = mat * glm::vec3{ aabb.min.x, aabb.min.y, 1.0f };
+    const auto max = mat * glm::vec3{ aabb.max.x, aabb.max.y, 1.0f };
+
+    return { glm::vec3 { min.x, min.y, aabb.min.z }, glm::vec3 { max.x, max.y, aabb.max.z } };
 }
 
 }  // namespace Math

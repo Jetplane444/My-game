@@ -23,7 +23,7 @@
 
 #include <iostream>
 
-using namespace Graphics; 
+using namespace Graphics;
 using namespace Math;
 
 Window window;
@@ -40,7 +40,8 @@ Player player;
 void InitGame()
 {
 	player.setPosition({ SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 });
-	camera.setOrigin(player.getPosition());
+	camera.setSize(player.getPosition());
+	camera.setPosition(player.getPosition());
 }
 
 int main()
@@ -96,8 +97,31 @@ int main()
 		// update the input state
 		Input::update();
 
-		player.update(timer.elapsedSeconds());
-		camera.setOrigin(player.getPosition());
+		player.update(static_cast<float>(timer.elapsedSeconds()));
+		camera.setPosition(player.getPosition());
+
+		// Make sure that the camera's visible area does not leave the area of the background sprite.
+		glm::vec2 cameraCorrection{ 0 };
+		if (camera.getLeftEdge() < 0)
+		{
+			cameraCorrection.x = -camera.getLeftEdge();
+		}
+		else if (camera.getRightEdge() > static_cast<float>(background.getWidth()))
+		{
+			cameraCorrection.x = std::floor(static_cast<float>(background.getWidth()) - camera.getRightEdge());
+		}
+
+		if (camera.getTopEdge() < 0)
+		{
+			cameraCorrection.y = -camera.getTopEdge();
+		}
+		else if (camera.getBottomEdge() > static_cast<float>(background.getHeight()))
+		{
+			cameraCorrection.y = std::floor(static_cast<float>(background.getHeight()) - camera.getBottomEdge());
+		}
+
+		//Apply camera correction
+		camera.translate(cameraCorrection);
 
 		// Check collisions with player.
 		//Screen space collision.

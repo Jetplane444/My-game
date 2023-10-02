@@ -32,5 +32,8 @@
     <ClInclude Include="inc\Player.hpp">
       <Filter>Resource Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\math\inc\Math\Space.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
