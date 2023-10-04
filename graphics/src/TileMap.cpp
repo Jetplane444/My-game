@@ -1,7 +1,5 @@
 #include <Graphics/TileMap.hpp>
 
-#include <glm/gtx/transform.hpp>
-
 using namespace Graphics;
 
 TileMap::TileMap( std::shared_ptr<SpriteSheet> spriteSheet, uint32_t columns, uint32_t rows )
@@ -37,8 +35,7 @@ void TileMap::setSpriteGrid( std::span<const int> _spriteGrid )
     spriteGrid = std::vector( _spriteGrid.begin(), _spriteGrid.end() );
 }
 
-
-void TileMap::draw(Image& image, const glm::mat3& translate) const
+void TileMap::draw( Image& image ) const
 {
     if ( !spriteSheet )
         return;
@@ -52,18 +49,13 @@ void TileMap::draw(Image& image, const glm::mat3& translate) const
     for ( uint32_t i = 0u; i < rows; ++i )
     {
         x = 0;
-        for (uint32_t j = 0; j < columns; ++j)
+        for ( uint32_t j = 0; j < columns; ++j )
         {
             const int spriteId = spriteGrid[i * columns + j];
-            if (spriteId >= 0 && spriteId < numSprites)
+            if ( spriteId >= 0 && spriteId < numSprites )
             {
-            glm::mat3 t = {
-                1, 0, 0,
-                0, 1, 0,
-                x, y, 1
-            };
-            image.drawSprite(SpriteSheet->getSprite(spriteId), transform * t);
-        }
+                image.drawSprite( spriteSheet->getSprite( spriteId ), x, y );
+            }
             x += spriteWidth;
         }
         y += spriteHeight;
