@@ -5,8 +5,19 @@
 #include <Graphics/ResourceManager.hpp>
 #include <Math/Camera2D.hpp>
 
+#include <map>
+#include <string>
+
 using namespace Graphics;
 using namespace Math;
+
+static std::map<Player::State, std::string> g_stateMap = {
+    {Player::State::None, "None"},
+    {Player::State::Idle, "Idle"},
+    {Player::State::Running, "Running"},
+    {Player::State::Attack, "Attack"},
+    {Player::State::Dead, "Dead"},
+};
 
 Player::Player() = default;
 
@@ -16,49 +27,48 @@ Player::Player(const glm::vec2& pos)
 {
     auto idle_sprites = ResourceManager::loadSpriteSheet("assets/Warrior/SpriteSheet/Warrior_SheetnoEffect.png", 64, 44, 0, 0, BlendMode::AlphaBlend);
     IdleAnim = SpriteAnim(idle_sprites, 12, { {0, 1, 2, 3, 4, 5} });
-    RunAnim = SpriteAnim(idle_sprites, 12, { {6, 7, 8, 9, 10, 11} });
+    RunningAnim = SpriteAnim(idle_sprites, 12, { {6, 7, 8, 9, 10, 11} });
+
+    setState(State::Idle);
 }
 
 void Player::update(float deltaTime)
 {
-    auto initialPos = transform.getPosition();
-    auto newPos = initialPos;
-
-    newPos.x += Input::getAxis("Horizontal") * speed * deltaTime;
-    newPos.y -= Input::getAxis("Vertical") * speed * deltaTime;
-
-    velocity = (newPos - initialPos) / deltaTime;
-
-    transform.setPosition(newPos);
-
-    if (glm::length(velocity) > 0)
-    {
-        setState(State::Running);
-    }
-    else
-    {
-        setState(State::Idle);
-    }
-
-    IdleAnim.update(deltaTime);
-    RunAnim.update(deltaTime);
-}
-
-void Player::draw(Graphics::Image& image, const Camera2D& camera)
-{
     switch (state)
     {
     case State::Idle:
-        image.drawSprite(IdleAnim, camera * transform);
+        doIdle(deltaTime);
         break;
     case State::Running:
-        image.drawSprite(RunAnim, camera * transform);
+        doRunning(deltaTime);
+        break;
+    }
+}
+
+void Player::draw(Graphics::Image& image, const glm::mat3& transform)
+{
+    // Translation matrix.
+    // Use a Transform2D instead!
+    glm::mat3 t = {
+        1, 0, 0,
+        0, 1, 0,
+        position.x, position.y, 1
+    };
+
+    t = transform * t;
+
+    switch (state)
+    {
+    case State::Idle:
+        image.drawSprite(IdleAnim, t);
+        break;
+    case State::Running:
+        image.drawSprite(RunningAnim, t);
         break;
     }
 #if _DEBUG
-    image.drawAABB(camera * getAABB(), Color::Yellow, {}, FillMode::WireFrame);
-    auto pos = camera * transform;
-    image.drawText(Font::Default, "State...", pos[2][0], pos[2][1], Color::Black);
+    image.drawAABB(transform * getAABB(), Color::Yellow, {}, FillMode::WireFrame);
+    image.drawText(Font::Default, g_stateMap[state], t[2][0], t[2][1], Color::Black);
 #endif
 }
 
@@ -89,12 +99,45 @@ void Player::setState(State newState)
         switch (newState)
         {
         case State::Idle:
+            // Do stuff when transition to the new state
             break;
         case State::Running:
             break;
         }
         state = newState;
     }
+}
+
+void Player::doMovement(float deltaTime)
+{
+    auto initialPos = position;
+    position.x += Input::getAxis("Horisontal") * speed * deltaTime;
+    position.y -= Input::getAxis("Horisontal") * speed * deltaTime;
+
+    velocity = (position - initialPos) / deltaTime;
+}
+
+void Player::doIdle(float deltaTime)
+{
+    doMovement(deltaTime);
+
+    if (glm::length(velocity) > 0)
+    {
+        setState(State::Running);
+    }
+    IdleAnim.update(deltaTime);  
+}
+
+void Player::doRunning(float deltaTime)
+{
+    doMovement(deltaTime);
+
+    if (glm::length(velocity) == 0.0f)
+    {
+        setState(State::Idle);
+    }
+
+    RunningAnim.update(deltaTime);
 }
 
 
