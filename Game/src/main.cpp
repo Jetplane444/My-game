@@ -1,4 +1,5 @@
 #include <Player.hpp>
+#include <Enemy.hpp>
 
 #include <Graphics/Window.hpp>
 #include <Graphics/Image.hpp>
@@ -36,6 +37,7 @@ const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
 
 Player player;
+Enemy enemy;
 
 void InitGame()
 {
@@ -161,6 +163,8 @@ int main()
 		image.drawSprite(background, camera);
 
 		player.draw(image, camera);
+
+		enemy.draw(image, camera);
 
 		image.drawText(Font::Default, fps, 10, 10, Color::Black);
 
