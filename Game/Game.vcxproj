@@ -14,12 +14,14 @@
     <ClCompile Include="inc\Enemy.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="src\Ball.cpp" />
+    <ClCompile Include="src\Entity.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\math\inc\Math\Space.hpp" />
     <ClInclude Include="inc\Ball.hpp" />
     <ClInclude Include="inc\Enemy.hpp" />
+    <ClInclude Include="inc\Entity.hpp" />
     <ClInclude Include="inc\Player.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

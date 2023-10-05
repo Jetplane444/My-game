@@ -19,7 +19,6 @@
 #include <Math/Camera2D.hpp>
 
 #include <fmt/core.h>
-
 #include <glm/vec2.hpp>
 
 #include <iostream>
@@ -70,7 +69,8 @@ int main()
 	window.setFullscreen(true);
 	
 	
-	player = Player({ SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 });
+	player = Player{ { SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 } };
+	enemy = Enemy{ {SCREEN_WIDTH / 2 + 100, SCREEN_HEIGHT / 2} };
 
 	// Load tilemap.
 	auto backgroundMap = ResourceManager::loadImage("assets/Map.png");
@@ -100,6 +100,23 @@ int main()
 		Input::update();
 
 		player.update(static_cast<float>(timer.elapsedSeconds()));
+		enemy.update(static_cast<float>(timer.elapsedSeconds()));
+
+		// Check collisions
+		static bool isColliding = false;
+		if (player.collides(enemy))
+		{
+			if (!isColliding)
+			{
+				std::cout << "Ouch!" << std::endl;
+				isColliding = true;
+			}
+		}
+		else
+		{
+			isColliding = false;
+		}
+
 		camera.setPosition(player.getPosition());
 
 		// Make sure that the camera's visible area does not leave the area of the background sprite.
@@ -188,6 +205,10 @@ int main()
 					break;
 				case KeyCode::V:
 					window.toggleVSync();
+					break;
+				case KeyCode::F11:
+					window.toggleFullscreen();
+					break;
 				}
 			}
 			break;
@@ -209,6 +230,6 @@ int main()
 		}
 	}
 	std::cout << "Thanks for playing" << std::endl; 
-		 
+
 	return 0;
 }
