@@ -30,9 +30,15 @@ public:
 
 	explicit Player(const glm::vec2& pos);
 
+	void doMovement(float deltaTime);
+	void doIdle(float deltaTime);
+	void doRunning(float deltaTime);
+	void doAttack(float deltaTime);
+
 	virtual void update(float deltaTime) override;
 	virtual void draw(Graphics::Image& image, const Math::Camera2D& camera) override;
-
+	
+	
 private:
 	void setState(State newState);
 
