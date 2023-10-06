@@ -33,7 +33,6 @@ public:
 	virtual void update(float deltaTime) override;
 	virtual void draw(Graphics::Image& image, const Math::Camera2D& camera) override;
 
-	
 private:
 	void setState(State newState);
 

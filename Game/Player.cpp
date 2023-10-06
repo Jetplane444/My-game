@@ -4,7 +4,6 @@
 #include <Graphics/Font.hpp>
 #include <Graphics/ResourceManager.hpp>
 #include <Math/Camera2D.hpp>
-#include <Graphics/MouseState.hpp>
 
 #include <map>
 #include <string>
@@ -13,8 +12,7 @@
 static std::map<Player::State, std::string> g_StateString = {
     {Player::State::None, "None"},
     {Player::State::Idle, "Idle"},
-    {Player::State::Running, "Running"},
-    {Player::State::Attack, "Attack"}
+    {Player::State::Running, "Running"}
 };
 
 using namespace Graphics;
@@ -27,8 +25,7 @@ Player::Player(const glm::vec2& pos)
 {
     auto idle_sprites = ResourceManager::loadSpriteSheet("assets/Warrior/SpriteSheet/Warrior_SheetnoEffect.png", 64, 44, 0, 0, BlendMode::AlphaBlend);
     IdleAnim = SpriteAnim(idle_sprites, 12, { {0, 1, 2, 3, 4, 5} });
-    RunAnim = SpriteAnim(idle_sprites, 12, { {6, 7, 8, 9, 10, 11, 12, 13} });
-    AttackAnim = SpriteAnim(idle_sprites, 12, { {14, 15, 16, 17, 18, 19, 20, 21, 22} });
+    RunAnim = SpriteAnim(idle_sprites, 12, { {6, 7, 8, 9, 10, 11} });
 
     transform.setAnchor({ 25,43 });
 }
@@ -45,30 +42,27 @@ void Player::update(float deltaTime)
 
     transform.setPosition(newPos);
 
-    switch (state)
+    // How to detect direction of player?
+    if (velocity.x < 0.0f)
     {
-        if (velocity.x < 0.0f)
-        {
-            transform.setScale({ -1, 1 });
-        }
-        else if (velocity.x > 0.0f)
-        {
-            transform.setScale({ 1, 1 });
-        }
+        transform.setScale({ -1, 1 });
+    }
+    else if (velocity.x > 0.0f)
+    {
+        transform.setScale({ 1, 1 });
+    }
 
-        if (glm::length(velocity) > 0)
-        {
-            setState(State::Running);
-        }
-        else
-        {
-            setState(State::Idle);
-        }
+    if (glm::length(velocity) > 0)
+    {
+        setState(State::Running);
+    }
+    else
+    {
+        setState(State::Idle);
     }
 
     IdleAnim.update(deltaTime);
     RunAnim.update(deltaTime);
-    AttackAnim.update(deltaTime);
 }
 
 void Player::draw(Graphics::Image& image, const Camera2D& camera)
@@ -81,8 +75,6 @@ void Player::draw(Graphics::Image& image, const Camera2D& camera)
     case State::Running:
         image.drawSprite(RunAnim, camera * transform);
         break;
-    case State::Attack:
-        image.drawSprite(AttackAnim, camera * transform);
     }
 #if _DEBUG
     image.drawAABB(camera * getAABB(), Color::Yellow, {}, FillMode::WireFrame);
@@ -90,7 +82,6 @@ void Player::draw(Graphics::Image& image, const Camera2D& camera)
     image.drawText(Font::Default, g_StateString[state], pos[2][0], pos[2][1], Color::Black);
 #endif
 }
-
 
 void Player::setState(State newState)
 {
@@ -101,15 +92,6 @@ void Player::setState(State newState)
         case State::Idle:
             break;
         case State::Running:
-            break;
-        }
-        state = newState;
-    }
-    else if (newState == state)
-    {
-        switch (newState)
-        {
-        case State::Attack:
             break;
         }
         state = newState;
