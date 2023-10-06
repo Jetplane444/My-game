@@ -1,5 +1,6 @@
 #include <Entity.hpp>
 
+
 #include <iostream>
 
 Entity::Entity(const glm::vec2& pos, const Math::AABB& aabb)
