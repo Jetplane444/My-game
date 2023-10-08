@@ -10,6 +10,7 @@
 #include <Graphics/KeyboardStateTracker.hpp>
 #include <Graphics/KeyboardState.hpp>
 #include <Graphics/Keyboard.hpp>
+#include <Graphics/Timer.hpp>
 
 #include <map>
 #include <string>
@@ -24,7 +25,8 @@ static std::map<Player::State, std::string> g_StateString = {
     {Player::State::None, "None"},
     {Player::State::Idle, "Idle"},
     {Player::State::Running, "Running"},
-    {Player::State::Attack, "Attack"}
+    {Player::State::Attack, "Attack"},
+    {Player::State::Dash, "Dash"}
 };
 
 Player::Player() = default;
@@ -36,6 +38,7 @@ Player::Player(const glm::vec2& pos)
     IdleAnim = SpriteAnim(idle_sprites, 12, { {0, 1, 2, 3, 4, 5} });
     RunAnim = SpriteAnim(idle_sprites, 12, { {6, 7, 8, 9, 10, 11} });
     AttackAnim = SpriteAnim(idle_sprites, 12, { {14, 15, 16, 17, 18, 19, 20, 21, 22} });
+    DashAnim = SpriteAnim(idle_sprites, 12, { {69, 70, 71 ,72 ,73, 74, 75} });
 
     setState(State::Idle);
     transform.setAnchor({ 25,43 });
@@ -55,6 +58,9 @@ void Player::update(float deltaTime)
         break;
     case State::Attack:
         doAttack(deltaTime);
+        break;
+    case State::Dash:
+        doDash(deltaTime);
         break;
     }
 
@@ -82,6 +88,8 @@ void Player::draw(Graphics::Image& image, const Camera2D& camera)
     case State::Attack:
         image.drawSprite(AttackAnim, camera * transform);
         break;
+    case State::Dash:
+        image.drawSprite(DashAnim, camera * transform);
     }
 #if _DEBUG
     image.drawAABB(camera * getAABB(), Color::Yellow, {}, FillMode::WireFrame);
@@ -108,17 +116,42 @@ void Player::doIdle(float deltaTime)
 {
     doMovement(deltaTime);
 
+    if (Input::getMouseButtonDown(MouseButton::Left))
+    {
+        setState(State::Attack);
+    }
+
+    if (Input::getKeyDown(KeyCode::Space))
+    {
+        setState(State::Dash);
+    }
+
     if (glm::length(velocity) > 0)
     {
         setState(State::Running);
     }
-
+    
+    
     IdleAnim.update(deltaTime);
+    AttackAnim.reset();
+    AttackAnim.update(deltaTime);
+    DashAnim.reset();
+    DashAnim.update(deltaTime);
 }
 
 void Player::doRunning(float deltaTime)
 {
     doMovement(deltaTime);
+
+    if (Input::getMouseButton(MouseButton::Left))
+    {
+        setState(State::Attack);
+    }
+
+    if (Input::getKeyDown(KeyCode::Space))
+    {
+        setState(State::Dash);
+    }
 
     if (glm::length(velocity) == 0.0f)
     {
@@ -126,18 +159,31 @@ void Player::doRunning(float deltaTime)
     }
 
     RunAnim.update(deltaTime);
+    AttackAnim.update(deltaTime);
+    DashAnim.update(deltaTime);
 }
 
 void Player::doAttack(float deltaTime)
 {
-    doMovement(deltaTime);
-
-    if (Input::getKeyDown(""))
-    {
-        setState(State::Attack);
-    }
-
+   //Update the attack animation.
     AttackAnim.update(deltaTime);
+  
+    //Check if the animation is done playing.
+    if (AttackAnim.isDone()) 
+    {
+        // Switch back to idle
+        setState(State::Idle);
+    }
+}
+
+void Player::doDash(float deltaTime)
+{
+    DashAnim.update(deltaTime);
+
+    if (DashAnim.isDone())
+    {
+        setState(State::Idle);
+    }
 }
 
 
@@ -153,6 +199,8 @@ void Player::setState(State newState)
         case State::Running:
             break;
         case State::Attack:
+            break;
+        case State::Dash:
             break;
         }
         state = newState;

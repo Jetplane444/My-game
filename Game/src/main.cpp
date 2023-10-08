@@ -61,20 +61,7 @@ int main()
 
 		return b || enter || r;
 		});
-		
-	// Input to Attack
-	Input::mapButton("Attack", [](std::span<const GamePadStateTracker> gamePadStates, const KeyboardStateTracker& keyboardState, const MouseStateTracker& mouseState) {
-		bool a = false;
-
-		for (auto& gamePadState : gamePadStates)
-		{
-			a = a || gamePadState.a == ButtonState::Pressed;
-		}
-
-		const bool e = keyboardState.isKeyPressed(KeyCode::E);
-
-		return a || e;
-		});
+	
 
 	image.resize(SCREEN_WIDTH, SCREEN_HEIGHT);
 	

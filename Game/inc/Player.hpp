@@ -3,6 +3,8 @@
 #include "Entity.hpp"
 
 #include <Graphics/SpriteAnim.hpp>
+#include <Graphics/SpriteSheet.hpp>
+#include <Graphics/Config.hpp>
 
 namespace Math
 {
@@ -22,6 +24,7 @@ public:
 		Idle,
 		Running,
 		Attack,
+		Dash,
 		Dead
 	};
 
@@ -34,11 +37,13 @@ public:
 	void doIdle(float deltaTime);
 	void doRunning(float deltaTime);
 	void doAttack(float deltaTime);
+	void doDash(float deltaTime);
 
 	virtual void update(float deltaTime) override;
 	virtual void draw(Graphics::Image& image, const Math::Camera2D& camera) override;
 	
 	
+
 private:
 	void setState(State newState);
 
@@ -49,4 +54,5 @@ private:
 	Graphics::SpriteAnim IdleAnim;
 	Graphics::SpriteAnim RunAnim;
 	Graphics::SpriteAnim AttackAnim;
+	Graphics::SpriteAnim DashAnim;
 };
