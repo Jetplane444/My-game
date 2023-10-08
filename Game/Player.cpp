@@ -112,6 +112,19 @@ void Player::doMovement(float deltaTime)
     transform.setPosition(newPos);
 }
 
+void Player::doDashMovement(float deltaTime)
+{
+    auto initialPos = transform.getPosition();
+    auto newPos = initialPos;
+    
+    newPos.x += Input::getAxis("Horisontal") * speed * deltaTime;
+    newPos.y -= Input::getAxis("Vertical") * speed * deltaTime;
+
+    velocity = (newPos - initialPos) / deltaTime ;
+
+    transform.setPosition(newPos);
+}
+
 void Player::doIdle(float deltaTime)
 {
     doMovement(deltaTime);
@@ -160,11 +173,13 @@ void Player::doRunning(float deltaTime)
 
     RunAnim.update(deltaTime);
     AttackAnim.update(deltaTime);
+    DashAnim.reset();
     DashAnim.update(deltaTime);
 }
 
 void Player::doAttack(float deltaTime)
 {
+    doMovement(deltaTime);
    //Update the attack animation.
     AttackAnim.update(deltaTime);
   
@@ -178,11 +193,23 @@ void Player::doAttack(float deltaTime)
 
 void Player::doDash(float deltaTime)
 {
+    doMovement(deltaTime);
+
+    doDashMovement(deltaTime);
+
     DashAnim.update(deltaTime);
+
 
     if (DashAnim.isDone())
     {
-        setState(State::Idle);
+        if (glm::length(velocity) > 0)
+        {
+            setState(State::Running);
+        }
+        else if (glm::length(velocity) == 0.0f)
+        {
+            setState(State::Idle);
+        }
     }
 }
 

@@ -34,6 +34,7 @@ public:
 	explicit Player(const glm::vec2& pos);
 
 	void doMovement(float deltaTime);
+	void doDashMovement(float deltaTime);
 	void doIdle(float deltaTime);
 	void doRunning(float deltaTime);
 	void doAttack(float deltaTime);
@@ -42,10 +43,11 @@ public:
 	virtual void update(float deltaTime) override;
 	virtual void draw(Graphics::Image& image, const Math::Camera2D& camera) override;
 	
-	
+
 
 private:
 	void setState(State newState);
+
 
 	glm::vec2 velocity{ 0 };
 	float speed{ 60.0f };
