@@ -117,8 +117,8 @@ void Player::doDashMovement(float deltaTime)
     auto initialPos = transform.getPosition();
     auto newPos = initialPos;
     
-    newPos.x += Input::getAxis("Horisontal") * speed * deltaTime;
-    newPos.y -= Input::getAxis("Vertical") * speed * deltaTime;
+    newPos.x += Input::getAxis("Horizontal") * speed * 2 * deltaTime;
+    newPos.y -= Input::getAxis("Vertical") * speed * 2 * deltaTime;
 
     velocity = (newPos - initialPos) / deltaTime ;
 
@@ -193,7 +193,6 @@ void Player::doAttack(float deltaTime)
 
 void Player::doDash(float deltaTime)
 {
-    doMovement(deltaTime);
 
     doDashMovement(deltaTime);
 
