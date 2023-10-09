@@ -25,6 +25,7 @@ public:
 		Running,
 		Attack,
 		Dash,
+		DashAttack,
 		Dead
 	};
 
@@ -39,6 +40,7 @@ public:
 	void doRunning(float deltaTime);
 	void doAttack(float deltaTime);
 	void doDash(float deltaTime);
+	void doDashAttack(float deltaTime);
 
 	virtual void update(float deltaTime) override;
 	virtual void draw(Graphics::Image& image, const Math::Camera2D& camera) override;
@@ -57,4 +59,5 @@ private:
 	Graphics::SpriteAnim RunAnim;
 	Graphics::SpriteAnim AttackAnim;
 	Graphics::SpriteAnim DashAnim;
+	Graphics::SpriteAnim DashAttackAnim;
 };
