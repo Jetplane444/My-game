@@ -34,12 +34,20 @@ public:
 
 	explicit Enemy(const glm::vec2& pos);
 
-	void update(float deltaTime) override;
+	void doMovement(float deltaTime);
+	void doIdle(float deltaTime);
+	void doRunning(float deltaTime);
+	void doAttack(float deltaTime);
+	void doDie(float deltaTime);
 
+	void update(float deltaTime) override;
 	void draw(Graphics::Image& image, const Math::Camera2D& camera) override;
+	void setTarget(Entity* target);
 
 private:
 	void setState(State newState);
+
+	Entity* target = nullptr;
 
 	State state = State::None;
 	
@@ -47,5 +55,8 @@ private:
 	float speed{ 60.0f };
 
 	Graphics::SpriteAnim idleAnim;
+	Graphics::SpriteAnim runAnim;
+	Graphics::SpriteAnim attackAnim;
+	Graphics::SpriteAnim deathAnim;
 };
 

@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="inc\Enemy.cpp" />
+    <ClCompile Include="inc\Level.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="src\Ball.cpp" />
     <ClCompile Include="src\Entity.cpp" />
@@ -22,6 +23,7 @@
     <ClInclude Include="inc\Ball.hpp" />
     <ClInclude Include="inc\Enemy.hpp" />
     <ClInclude Include="inc\Entity.hpp" />
+    <ClInclude Include="inc\Level.hpp" />
     <ClInclude Include="inc\Player.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

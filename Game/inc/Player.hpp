@@ -39,6 +39,7 @@ public:
 	void doRunning(float deltaTime);
 	void doAttack(float deltaTime);
 	void doDash(float deltaTime);
+	void doDie(float deltaTime);
 
 	virtual void update(float deltaTime) override;
 	virtual void draw(Graphics::Image& image, const Math::Camera2D& camera) override;
@@ -48,7 +49,6 @@ public:
 private:
 	void setState(State newState);
 
-
 	glm::vec2 velocity{ 0 };
 	float speed{ 60.0f };
 
@@ -57,4 +57,5 @@ private:
 	Graphics::SpriteAnim RunAnim;
 	Graphics::SpriteAnim AttackAnim;
 	Graphics::SpriteAnim DashAnim;
+	Graphics::SpriteAnim DieAnim;
 };

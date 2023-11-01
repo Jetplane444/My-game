@@ -17,6 +17,8 @@
 #include <Math/Transform2D.hpp>
 #include <Graphics/TileMap.hpp>
 #include <Math/Camera2D.hpp>
+#include <Audio/Device.hpp>
+#include <Audio/Sound.hpp>
 
 #include <fmt/core.h>
 #include <glm/vec2.hpp>
@@ -24,6 +26,7 @@
 #include <iostream>
 
 using namespace Graphics;
+using namespace Audio;
 using namespace Math;
 
 Window window;
@@ -79,6 +82,11 @@ int main()
 
 	auto grass_sprites = ResourceManager::loadSpriteSheet("assets/PixelArt/TX Tileset Grass.png", 16, 16);
 	grassTiles = TileMap{ grass_sprites, 30, 30 };
+
+	Sound music;
+
+	music.loadMusic("audio/Theme.wav");
+	music.setVolume(0.25f);
 	
 	for(int i = 0; i < 30; ++i)
     {
@@ -177,12 +185,18 @@ int main()
 		// Render loop.
 
 		image.clear(Color::White);
+		
+		music.play();
+
+		music.setLooping(true);
 
 		image.drawSprite(background, camera);
 
 		player.draw(image, camera);
 
 		enemy.draw(image, camera);
+
+		enemy.setTarget(&player);
 
 		image.drawText(Font::Default, fps, 10, 10, Color::Black);
 

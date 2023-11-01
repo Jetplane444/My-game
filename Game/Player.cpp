@@ -26,7 +26,8 @@ static std::map<Player::State, std::string> g_StateString = {
     {Player::State::Idle, "Idle"},
     {Player::State::Running, "Running"},
     {Player::State::Attack, "Attack"},
-    {Player::State::Dash, "Dash"}
+    {Player::State::Dash, "Dash"},
+    {Player::State::Dead, "Dead"}
 };
 
 Player::Player() = default;
@@ -39,6 +40,7 @@ Player::Player(const glm::vec2& pos)
     RunAnim = SpriteAnim(idle_sprites, 12, { {6, 7, 8, 9, 10, 11} });
     AttackAnim = SpriteAnim(idle_sprites, 12, { {14, 15, 16, 17, 18, 19, 20, 21, 22} });
     DashAnim = SpriteAnim(idle_sprites, 12, { {69, 70, 71 ,72 ,73, 74, 75} });
+    DieAnim = SpriteAnim(idle_sprites, 12, { {26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36} });
 
     setState(State::Idle);
     transform.setAnchor({ 25,43 });
@@ -61,6 +63,9 @@ void Player::update(float deltaTime)
         break;
     case State::Dash:
         doDash(deltaTime);
+        break;
+    case State::Dead:
+        doDie(deltaTime);
         break;
     }
 
@@ -90,6 +95,10 @@ void Player::draw(Graphics::Image& image, const Camera2D& camera)
         break;
     case State::Dash:
         image.drawSprite(DashAnim, camera * transform);
+        break;
+    case State::Dead:
+        image.drawSprite(DieAnim, camera * transform);
+        break;
     }
 #if _DEBUG
     image.drawAABB(camera * getAABB(), Color::Yellow, {}, FillMode::WireFrame);
@@ -212,6 +221,11 @@ void Player::doDash(float deltaTime)
     }
 }
 
+void Player::doDie(float deltaTime)
+{
+
+}
+
 
 
 void Player::setState(State newState)
@@ -227,6 +241,8 @@ void Player::setState(State newState)
         case State::Attack:
             break;
         case State::Dash:
+            break;
+        case State::Dead:
             break;
         }
         state = newState;

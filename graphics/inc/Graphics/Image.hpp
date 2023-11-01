@@ -260,7 +260,7 @@ public:
     /// <param name="color">The color of the circle.</param>
     /// <param name="blendMode">The blend mode to use.</param>
     /// <param name="fillMode">The fill mode to use.</param>
-    void drawCircle( const Math::Sphere& sphere, const Color& color, const BlendMode& blendMode, FillMode fillMode ) noexcept
+    void drawCircle(const Math::Sphere& sphere, const Color& color, const BlendMode& blendMode = {}, FillMode fillMode = FillMode::Solid) noexcept
     {
         drawCircle( Math::Circle { sphere.center, sphere.radius }, color, blendMode, fillMode );
     }
