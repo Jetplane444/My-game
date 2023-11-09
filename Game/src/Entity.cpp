@@ -1,6 +1,8 @@
 #include <Entity.hpp>
 
+
 #include <iostream>
+
 
 Entity::Entity(const glm::vec2& pos, const Math::AABB& aabb)
     : transform{pos}
@@ -16,6 +18,7 @@ const glm::vec2& Entity::getPosition() const
 {
     return transform.getPosition();
 }
+
 
 void Entity::translate(const glm::vec2& t)
 {

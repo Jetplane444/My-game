@@ -1,9 +1,13 @@
 #pragma once
 
+#include "Character.hpp"
+
 #include <Graphics/Image.hpp>
 #include <Math/AABB.hpp>
 #include <Math/Transform2D.hpp>
 #include <Math/Camera2D.hpp>
+
+#include <vector>
 
 class Entity
 {

@@ -80,21 +80,13 @@ int main()
 	auto backgroundMap = ResourceManager::loadImage("assets/Map.png");
 	background = Sprite{ backgroundMap };
 
-	auto grass_sprites = ResourceManager::loadSpriteSheet("assets/PixelArt/TX Tileset Grass.png", 16, 16);
-	grassTiles = TileMap{ grass_sprites, 30, 30 };
-
+	
 	Sound music;
 
 	music.loadMusic("audio/Theme.wav");
 	music.setVolume(0.25f);
 	
-	for(int i = 0; i < 30; ++i)
-    {
-		for (int j = 0; j < 30; ++j)
-		{
-			grassTiles(i, j) = (i *grass_sprites->getNumColumns()+ j) % grass_sprites->getNumSprites();
-		}
-	}
+	
 
 	Timer       timer;
 	double      totalTime = 0.0;
@@ -150,31 +142,6 @@ int main()
 
 		//Apply camera correction
 		camera.translate(cameraCorrection);
-
-		// Check collisions with player.
-		//Screen space collision.
-		//{
-		//	auto aabb = player.getAABB();
-		//	glm::vec2 correction{ 0 };
-		//	if (aabb.min.x < 0)
-		//	{
-		//		correction.x = -aabb.min.x;
-		//	}
-		//	if (aabb.min.y < 0)
-		//	{
-		//		correction.y = -aabb.min.y;
-		//	if (aabb.max.x >= image.getWidth())
-		//	{
-		//		correction.x = image.getWidth() - aabb.max.x;
-		//	}
-		//	if (aabb.max.y >= image.getHeight())
-		//	{
-		//		correction.y = image.getHeight() - aabb.max.y;
-		//	}
-
-			// Apply correction
-		//	player.translate(correction);
-		//}
 
 
 		if (Input::getButton("Reload"))

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Entity.hpp"
+#include "Character.hpp"
 
 #include <Graphics/SpriteAnim.hpp>
 #include <Graphics/SpriteSheet.hpp>
@@ -40,6 +41,10 @@ public:
 	void doAttack(float deltaTime);
 	void doDash(float deltaTime);
 	void doDie(float deltaTime);
+
+	void setVelocity(const glm::vec2& vel) noexcept;
+    const glm::vec2& getVelocity() const noexcept;
+	void setCharacter(size_t characterId);
 
 	virtual void update(float deltaTime) override;
 	virtual void draw(Graphics::Image& image, const Math::Camera2D& camera) override;

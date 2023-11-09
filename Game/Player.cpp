@@ -227,7 +227,6 @@ void Player::doDie(float deltaTime)
 }
 
 
-
 void Player::setState(State newState)
 {
     if (newState != state)
@@ -248,6 +247,18 @@ void Player::setState(State newState)
         state = newState;
     }
 }
+
+void Player::setVelocity(const glm::vec2& vel) noexcept
+{
+    velocity = vel;
+}
+
+const glm::vec2& Player::getVelocity() const noexcept
+{
+    return velocity;
+}
+
+
 
 
 

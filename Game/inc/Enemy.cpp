@@ -138,14 +138,20 @@ void Enemy::doRunning(float deltaTime)
         setState(State::Idle);
     }
 
+    if (target)
+    {
+        auto distance = glm::distance(getPosition(), target->getPosition());
+        if (distance <= 15)
+        {
+            setState(State::Attack);
+        }
+    }
+
     runAnim.update(deltaTime);
-    attackAnim.reset();
-    attackAnim.update(deltaTime);
 }
 
 void Enemy::doAttack(float deltaTime)
 {
-    doMovement(deltaTime);
     //Update the attack animation.
     attackAnim.update(deltaTime);
 
@@ -170,10 +176,13 @@ void Enemy::setState(State newState)
         switch (newState)
         {
         case State::Idle:
+            idleAnim.reset();
             break;
         case State::Running:
+            runAnim.reset();
             break;
         case State::Attack:
+            attackAnim.reset();
             break;
         case State::Dead:
             break;

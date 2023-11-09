@@ -33,6 +33,18 @@
     <ClCompile Include="inc\Level.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="inc\Character.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="inc\Box.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="inc\Effect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="inc\Pickup.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\Ball.hpp">
@@ -52,6 +64,18 @@
     </ClInclude>
     <ClInclude Include="inc\Level.hpp">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Box.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Character.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Effect.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Pickup.hpp">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
