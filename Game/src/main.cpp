@@ -1,6 +1,8 @@
 #include <Player.hpp>
 #include <Enemy.hpp>
+#include <LDtkLoader/Project.hpp>
 
+#include <Level.hpp>
 #include <Graphics/Window.hpp>
 #include <Graphics/Image.hpp>
 #include <Graphics/Sprite.hpp>
@@ -34,6 +36,7 @@ Image image;
 TileMap grassTiles;
 Sprite background;
 Camera2D camera;
+Level level;
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
@@ -80,7 +83,17 @@ int main()
 	auto backgroundMap = ResourceManager::loadImage("assets/Map.png");
 	background = Sprite{ backgroundMap };
 
+	ldtk::Project project;
+	project.loadFromFile("assets/Map.ldtk");
 	
+	// get a world
+	const auto& world = project.getWorld();
+	// get a level
+	const auto& level1 = world.getLevel("Level_0");
+
+	level = Level(project, world, level1);
+	
+
 	Sound music;
 
 	music.loadMusic("audio/Theme.wav");
@@ -156,6 +169,8 @@ int main()
 		music.play();
 
 		music.setLooping(true);
+
+		//level.draw(image, camera);
 
 		image.drawSprite(background, camera);
 

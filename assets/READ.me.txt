@@ -1,0 +1,10 @@
+The controls for the game are 
+
+W = move up
+A = move left
+S = move right
+D = move down
+
+Space bar = dash
+
+Left mouse button = attack

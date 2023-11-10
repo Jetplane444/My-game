@@ -3,6 +3,7 @@
 #include "Config.hpp"
 #include "Image.hpp"
 #include "SpriteSheet.hpp"
+#include <Math/Camera2D.hpp>
 
 #include <filesystem>
 
@@ -146,7 +147,9 @@ public:
     /// Draw this tile map to the image.
     /// </summary>
     /// <param name="image">The image to draw the tile map to.</param>
-    void draw( Image& image) const;
+    void draw( Image& image,const Math::Camera2D& camera) const;
+
+
 
 private:
     // The number of columns in the tile map.

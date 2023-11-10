@@ -49,7 +49,7 @@ public:
 		return player;
 	}
 
-	void draw(Graphics::Image& image) const;
+	void draw(Graphics::Image& image, const Math::Camera2D& camera) const;
 
 private:
 	void updateCollisions(float deltaTime);
@@ -72,6 +72,8 @@ private:
 
 	// Level tile map.
 	Graphics::TileMap tileMap;
+
+	Graphics::TileMap treeMap;
 
 	Player    player;
 	glm::vec2 playerStart{ 0 };

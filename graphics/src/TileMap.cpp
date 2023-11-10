@@ -35,7 +35,7 @@ void TileMap::setSpriteGrid( std::span<const int> _spriteGrid )
     spriteGrid = std::vector( _spriteGrid.begin(), _spriteGrid.end() );
 }
 
-void TileMap::draw( Image& image ) const
+void TileMap::draw( Image& image, const Math::Camera2D& camera ) const
 {
     if ( !spriteSheet )
         return;
@@ -43,7 +43,10 @@ void TileMap::draw( Image& image ) const
     const int spriteWidth  = static_cast<int>( spriteSheet->getSpriteWidth() );
     const int spriteHeight = static_cast<int>( spriteSheet->getSpriteHeight() );
     const int numSprites   = static_cast<int>( spriteSheet->getNumSprites() );
+    const auto cameraPosition = camera.getPosition();
 
+    int cx = cameraPosition.x;
+    int cy = cameraPosition.y;
     int x = 0;
     int y = 0;
     for ( uint32_t i = 0u; i < rows; ++i )
@@ -54,7 +57,7 @@ void TileMap::draw( Image& image ) const
             const int spriteId = spriteGrid[i * columns + j];
             if ( spriteId >= 0 && spriteId < numSprites )
             {
-                image.drawSprite( spriteSheet->getSprite( spriteId ), x, y );
+                image.drawSprite( spriteSheet->getSprite( spriteId ),cx + x, cy + y );
             }
             x += spriteWidth;
         }
